@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<persistence version="2.2"
+             xmlns="http://xmlns.jcp.org/xml/ns/persistence" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/persistence http://xmlns.jcp.org/xml/ns/persistence/persistence_2_2.xsd">
+    <persistence-unit name="hello">
+        <properties>
+            <!-- 필수 속성 -->
+            <property name="javax.persistence.jdbc.driver" value="org.h2.Driver"/>
+            <property name="javax.persistence.jdbc.user" value="sa"/>
+            <property name="javax.persistence.jdbc.password" value=""/>
+            <property name="javax.persistence.jdbc.url" value="jdbc:h2:tcp://localhost/~/test"/>
+            <property name="hibernate.dialect" value="org.hibernate.dialect.H2Dialect"/>
+            <!-- 옵션 -->
+            <property name="hibernate.show_sql" value="true"/>
+            <property name="hibernate.format_sql" value="true"/>
+            <property name="hibernate.use_sql_comments" value="true"/>
+            <property name="hibernate.jdbc.batch_size" value="10"/><!--쿼리 모았다 한번에 db로 날릴 수 있음 -->
+            <property name="hibernate.hbm2ddl.auto" value="create" /><!-- 서버 시작시 데이터베이스 스키마 생성 설정,
+                create-drop 설정도 있음 - 서버 실행시 테이블 생성하고 쿼리 실행 후 다시 테이블 드랍함
+                update - alter로 테이블 컬럼 추가, 지우는 건 안됨
+                validate - 맵핑 확인하주는 설정-->
+                <!-- 개발 초기 단계에는 create 또는 update / 테스트 서버에는 update 또는 validate / 스테이징과 운영서버는 validate 또는 none-->
+        </properties>
+    </persistence-unit>
+</persistence>
