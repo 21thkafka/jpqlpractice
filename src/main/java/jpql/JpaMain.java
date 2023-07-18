@@ -20,9 +20,16 @@ public class JpaMain {
 
         try {
 
+            //join 확인을 위해 team과 연관
+            Team team = new Team();
+            team.setName("teamA");
+            em.persist(team);
+
             Member member = new Member();
-            member.setUsername("member0");
+            member.setUsername("teamA");
             member.setAge(100);
+            member. setTeam(team);
+
             em.persist(member);
 
             //TypeQuery - 제네릭
@@ -88,15 +95,13 @@ public class JpaMain {
             System.out.println("memberDTO age = " + memberDTO.getAge());
 
    */
-            // 페이징
-
+    /*        // 페이징
             for(int i = 1; i < 100; i++){
                 Member user = new Member();
                 user.setUsername("member" + i);
                 user.setAge(i);
                 em.persist(user);
             }
-
 
             List<Member> result = em.createQuery("select m from Member m order by m.age desc")
                     .setFirstResult(1)
@@ -107,7 +112,18 @@ public class JpaMain {
             for (Member member1 : result){
                 System.out.println("member1 = " + member1.getUsername());
             }
+     */
+            //조인
+            //String query = "select m from Member m left outer join m.team t";
+            //String query = "select m from Member m, Team t where m.username = t.name"; // 세타 조인
+            //String query = "select m from Member m left join m.team t on t.name = 'teamA'"; //외부 조인 on 절 지원
+            String query = "select m from Member m left join Team t on m.username = t.name"; //외부 조인의 on 절 다른표현
+            List<Member> result = em.createQuery(query, Member.class)
+                    .getResultList();
 
+
+
+            System.out.println("result : " + result.size());
             tx.commit();
         } catch (Exception e){
             tx.rollback();
