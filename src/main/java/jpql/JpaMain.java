@@ -21,8 +21,8 @@ public class JpaMain {
         try {
 
             Member member = new Member();
-            member.setUsername("member1");
-            member.setAge(10);
+            member.setUsername("member0");
+            member.setAge(100);
             em.persist(member);
 
             //TypeQuery - 제네릭
@@ -81,11 +81,32 @@ public class JpaMain {
             System.out.println("age = " + results[1]);
 */
             // new 명령어로 조회 - 많이 사용
-            List<MemberDTO> resultList = em.createQuery("select new jpql.MemberDTO(m.username, m.age) from Member m", MemberDTO.class)
+  /*          List<MemberDTO> resultList = em.createQuery("select new jpql.MemberDTO(m.username, m.age) from Member m", MemberDTO.class)
                     .getResultList();
             MemberDTO memberDTO = resultList.get(0);
             System.out.println("memberDTO username = " + memberDTO.getUsername());
             System.out.println("memberDTO age = " + memberDTO.getAge());
+
+   */
+            // 페이징
+
+            for(int i = 1; i < 100; i++){
+                Member user = new Member();
+                user.setUsername("member" + i);
+                user.setAge(i);
+                em.persist(user);
+            }
+
+
+            List<Member> result = em.createQuery("select m from Member m order by m.age desc")
+                    .setFirstResult(1)
+                    .setMaxResults(10)
+                    .getResultList();
+
+            System.out.println("result.size = " + result.size());;
+            for (Member member1 : result){
+                System.out.println("member1 = " + member1.getUsername());
+            }
 
             tx.commit();
         } catch (Exception e){
