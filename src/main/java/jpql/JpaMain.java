@@ -26,7 +26,7 @@ public class JpaMain {
             em.persist(team);
 
             Member member = new Member();
-            member.setUsername("teamA");
+            member.setUsername("관리자");
             member.setAge(100);
             member. setTeam(team);
             member.setType(MemberType.ADMIN);
@@ -128,8 +128,8 @@ public class JpaMain {
        //     String query = "select m.username, 'HELLO', true from Member m" +
        //             " where m.type = jpql.MemberType.USER";   // 쿼리 안에 직접 명시할경우 패키지명까지 넣어야함
        //     String query = "select m.username, 'HELLO', true from Member m" +
-        //            " where m.type = :memberType";
-            String query = "select m.username, 'HELLO', true from Member m" +
+            //            " where m.type = :memberType";
+       /*     String query = "select m.username, 'HELLO', true from Member m" +
                     " where m.username is not null";    //is not null, between 가능
 
             List<Object[]> result = em.createQuery(query)
@@ -141,6 +141,27 @@ public class JpaMain {
                 System.out.println("objects = " + objects[1]);
                 System.out.println("objects = " + objects[2]);
             }
+        */
+            //조건식
+            //case when 절
+//            String query =
+//                    "select " +
+//                            "case when m.age <= 10 then '학생요금' "+
+//                            "     when m.age >= 60 then '경로요금' "+
+//                            "     else '일반요금' "+
+//                            "end " +
+//                    "from Member m";
+            //coalesces null이 아니면 값 반환, null일 경우 반환값 병합
+            //String query = "select coalesce(m.username, '이름 없는 회원') from Member m ";
+            //nullif 두 값이 같으면 null - username이 관리자면 Null 반환
+            String query = "select nullif(m.username, '관리자') from Member m ";
+            List<String> result = em.createQuery(query, String.class)
+                    .getResultList();
+
+            for (String s : result){
+                System.out.println("s = " + s);
+            }
+
             tx.commit();
         } catch (Exception e){
             tx.rollback();
