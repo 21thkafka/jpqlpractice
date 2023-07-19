@@ -29,6 +29,7 @@ public class JpaMain {
             member.setUsername("teamA");
             member.setAge(100);
             member. setTeam(team);
+            member.setType(MemberType.ADMIN);
 
             em.persist(member);
 
@@ -117,13 +118,29 @@ public class JpaMain {
             //String query = "select m from Member m left outer join m.team t";
             //String query = "select m from Member m, Team t where m.username = t.name"; // 세타 조인
             //String query = "select m from Member m left join m.team t on t.name = 'teamA'"; //외부 조인 on 절 지원
-            String query = "select m from Member m left join Team t on m.username = t.name"; //외부 조인의 on 절 다른표현
+     /*       String query = "select m from Member m left join Team t on m.username = t.name"; //외부 조인의 on 절 다른표현
             List<Member> result = em.createQuery(query, Member.class)
                     .getResultList();
 
-
-
             System.out.println("result : " + result.size());
+      */
+       //jpql 타입 표현과 기타식
+       //     String query = "select m.username, 'HELLO', true from Member m" +
+       //             " where m.type = jpql.MemberType.USER";   // 쿼리 안에 직접 명시할경우 패키지명까지 넣어야함
+       //     String query = "select m.username, 'HELLO', true from Member m" +
+        //            " where m.type = :memberType";
+            String query = "select m.username, 'HELLO', true from Member m" +
+                    " where m.username is not null";    //is not null, between 가능
+
+            List<Object[]> result = em.createQuery(query)
+                    .setParameter("memberType", MemberType.USER)    //enum 파라메터로 넣을 수 있음
+                            .getResultList();
+
+            for(Object[] objects : result){
+                System.out.println("objects = " + objects[0]);
+                System.out.println("objects = " + objects[1]);
+                System.out.println("objects = " + objects[2]);
+            }
             tx.commit();
         } catch (Exception e){
             tx.rollback();
