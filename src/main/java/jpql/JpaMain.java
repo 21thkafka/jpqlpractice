@@ -4,6 +4,7 @@ import javax.persistence.*;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -154,13 +155,49 @@ public class JpaMain {
             //coalesces null이 아니면 값 반환, null일 경우 반환값 병합
             //String query = "select coalesce(m.username, '이름 없는 회원') from Member m ";
             //nullif 두 값이 같으면 null - username이 관리자면 Null 반환
-            String query = "select nullif(m.username, '관리자') from Member m ";
+    /*        String query = "select nullif(m.username, '관리자') from Member m ";
             List<String> result = em.createQuery(query, String.class)
                     .getResultList();
 
             for (String s : result){
                 System.out.println("s = " + s);
             }
+     */
+            //jpql 함수
+            //String query = "select 'a' || 'b' from Member m "; //concat('a', 'b')가 더 표준
+    /*        String query = "select substring(m.username, 2, 3) from Member m "; //문자열 추출, 자리수 1부터 시작
+            //String query = "select function('group_concat', m.username) From Team t"; //사용자 정의 함수
+            List<String> result = em.createQuery(query)
+                    .getResultList();
+            for(String s : result){
+                System.out.println("s = " + s);
+            }
+
+            //String query2 = "select locate('fg', 'asdfgdqwe') from Member m "; //문자열 추출, 자리수 1부터 시작
+            String query2 = "select size(t.members) from Team t "; //size 함수, 컬렉션 크기 반환
+
+            Integer singleResult = em.createQuery(query2, Integer.class).getSingleResult();
+            System.out.println("컬렉션 크기 : " + singleResult);
+
+     */
+            //경로 표현식
+//            String query = "select m.username from Member m";   //상태필드(탐색x)
+//            String query = "select m.team.name from Member m";   //단일 값 연관경로 (묵시적 내부 조인 발생, 탐색o)
+//            String query = "select t.members from Team t";   //컬랙션 연관경로 (묵시적 내부 조인 발생, 탐색x)
+            String query = "select m.username from Team t join t.members m";   //컬랙션 연관경로 탐색하려면 명시적 조인을 해야함.
+//            List<String> result = em.createQuery(query, String.class)
+//                            .getResultList();
+            List<Collection> result = em.createQuery(query, Collection.class)
+                    .getResultList();   //collection은 컬럼 못갖고 옴, 탐색x size 정도만 가져올 수 있음
+            for (Object s : result){
+                System.out.println("s = " + s);
+            }
+
+            Integer singleResult = em.createQuery("select t.members.size from Team t", Integer.class)
+                    .getSingleResult();
+            System.out.println("t.members.size : " + singleResult);
+            // 묵시적 조인 사용 비권장, 매우 위험, 명시적 조인 사용 권장
+
 
             tx.commit();
         } catch (Exception e){
