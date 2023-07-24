@@ -22,17 +22,31 @@ public class JpaMain {
         try {
 
             //join 확인을 위해 team과 연관
-            Team team = new Team();
-            team.setName("teamA");
-            em.persist(team);
+            Team teamA = new Team();
+            teamA.setName("팀A");
+            em.persist(teamA);
+
+            Team teamB = new Team();
+            teamB.setName("팀B");
+            em.persist(teamB);
 
             Member member = new Member();
-            member.setUsername("관리자");
+            member.setUsername("회원 1");
             member.setAge(100);
-            member. setTeam(team);
+            member. setTeam(teamA);
             member.setType(MemberType.ADMIN);
 
+            Member member2 = new Member();
+            member2.setUsername("회원 2");
+            member2.setTeam(teamA);
+
             em.persist(member);
+            em.persist(member2);
+
+            Member member3 = new Member();
+            member3.setUsername("회원 3");
+            member3.setTeam(teamB);
+            em.persist(member3);
 
             //TypeQuery - 제네릭
         //    TypedQuery<Member> query = em.createQuery("select m from Member m", Member.class);
@@ -184,10 +198,11 @@ public class JpaMain {
 //            String query = "select m.username from Member m";   //상태필드(탐색x)
 //            String query = "select m.team.name from Member m";   //단일 값 연관경로 (묵시적 내부 조인 발생, 탐색o)
 //            String query = "select t.members from Team t";   //컬랙션 연관경로 (묵시적 내부 조인 발생, 탐색x)
-            String query = "select m.username from Team t join t.members m";   //컬랙션 연관경로 탐색하려면 명시적 조인을 해야함.
+       //     String query = "select m.username from Team t join t.members m";   //컬랙션 연관경로 탐색하려면 명시적 조인을 해야함.
 //            List<String> result = em.createQuery(query, String.class)
 //                            .getResultList();
-            List<Collection> result = em.createQuery(query, Collection.class)
+
+/*            List<Collection> result = em.createQuery(query, Collection.class)
                     .getResultList();   //collection은 컬럼 못갖고 옴, 탐색x size 정도만 가져올 수 있음
             for (Object s : result){
                 System.out.println("s = " + s);
@@ -198,6 +213,32 @@ public class JpaMain {
             System.out.println("t.members.size : " + singleResult);
             // 묵시적 조인 사용 비권장, 매우 위험, 명시적 조인 사용 권장
 
+
+ */
+            //페치 조인
+            //String query = "select m From Member m";    // N + 1 문제 발생
+            //String query = "select m From Member m join fetch m.team";  // 위 문제 해결 위해 페치조인
+            /*List<Member> result = em.createQuery(query, Member.class)
+                            .getResultList();
+           for(Member members : result) {
+                System.out.println("member = " + members.getUsername() + ", " + member.getTeam().getName());
+            }
+
+           */
+
+            //String query = "select distinct t From Team t join fetch t.members"; // 컬랙션 페치 조인, 즉시로딩
+            // 1:다 조인이기때문에 데이터 뻥튀기, distinct로 중복 데이터 제거
+            String query = "select t From Team t join t.members";   //일반 조인 실행시 연관도니 엔티티를 함께 조회하지 않음
+            List<Team> result = em.createQuery(query,Team.class)
+                    .getResultList();
+
+            System.out.println("size = " + result.size());
+            for(Team team : result) {
+                System.out.println("member = " + team.getName() + "|" + team.getMembers().size());
+                for (Member members : team.getMembers()){
+                    System.out.println("-> member = " + members);
+                }
+            }
 
             tx.commit();
         } catch (Exception e){
