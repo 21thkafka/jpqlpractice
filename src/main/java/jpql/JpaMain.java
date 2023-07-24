@@ -226,10 +226,14 @@ public class JpaMain {
 
            */
 
-            //String query = "select distinct t From Team t join fetch t.members"; // 컬랙션 페치 조인, 즉시로딩
-            // 1:다 조인이기때문에 데이터 뻥튀기, distinct로 중복 데이터 제거
-            String query = "select t From Team t join t.members";   //일반 조인 실행시 연관도니 엔티티를 함께 조회하지 않음
+            //String query = "select distinct t From Team t join fetch t.members"; // 컬랙션 페치 조인, 즉시로
+            // 1:다 조인이기때문에 데이터 뻥튀기, distinct로 중복 데이터 제거, 단점 별칭이 안됨
+            //String query = "select t From Team t join t.members";   //일반 조인 실행시 연관도니 엔티티를 함께 조회하지 않음
+            //String query = "select m From Member m join fetch m.team t"; //페이조인 페이징 할때 1:다를 뒤집어 다:1로 쿼리 작성
+            String query = "select t From Team t";  //@BatchSize를 같이 사용해 where team_id in ()으로 여러개 같이 조회
             List<Team> result = em.createQuery(query,Team.class)
+                    .setFirstResult(0)
+                    .setMaxResults(2)     //1:다의 페치조인에서 jpi 페이징 불가, 경고 로그나오는데 절대 쓰면 안됨
                     .getResultList();
 
             System.out.println("size = " + result.size());
