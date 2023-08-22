@@ -245,20 +245,20 @@ public class JpaMain {
             }
 */
             //엔티티 직접사용
-            String query = "select m From Member m where m = :member";
+  /*          String query = "select m From Member m where m = :member";
             Member findMember = em.createQuery(query,Member.class)
                     .setParameter("member", member)
                     .getSingleResult();
 
             System.out.println("findMember = " + findMember);
-
+*/
             //위의 코드와 같은 작용
 //            String query = "select m From Member m where m.id = :memberId";
 //            Member findMember = em.createQuery(query,Member.class)
 //                    .setParameter("memberId", member.getId())
 //                    .getSingleResult();
 
-            String query2 = "select m From Member m where m.team = :team";  //외래키 직접사용도 가능
+  /*          String query2 = "select m From Member m where m.team = :team";  //외래키 직접사용도 가능
             List<Member> findMember2 = em.createQuery(query2,Member.class)
                     .setParameter("team", teamA)
                     .getResultList();
@@ -266,7 +266,14 @@ public class JpaMain {
             for(Member members : findMember2){
                 System.out.println("findMember2 = " + members);
             }
-
+*/
+            //Named 쿼리
+            List<Member> resultList = em.createNamedQuery("Member.findByUsername", Member.class)
+                    .setParameter("username", "회원 1")
+                    .getResultList();
+            for (Member member1 : resultList){
+                System.out.println("member = " + member1);
+            }
             tx.commit();
         } catch (Exception e){
             tx.rollback();
